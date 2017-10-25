@@ -25,3 +25,22 @@ alias ll='ls -l'
 alias la='ls -la'
 alias grep="grep --color"
 alias j='fasd_cd -d'
+attach_to_tmux() {
+    export TMUX_SOCKET_NAME=${1:-default}
+    TMUX_SESSION_NAME=${2:-Main}
+    if [ $(tmux -L $TMUX_SOCKET_NAME list-sessions 2> /dev/null | wc -l) -eq 0 ] ; then
+
+        # if no tmux session in the machine , create  one and attach
+        tmux -L $TMUX_SOCKET_NAME new-session -s "$TMUX_SESSION_NAME" -d ;
+        tmux -L $TMUX_SOCKET_NAME attach;
+    else
+    # if a session is already there but not attached, then attach
+    if [ $(tmux -L $TMUX_SOCKET_NAME list-clients | wc -l) -eq 0 ]; then
+        tmux -L $TMUX_SOCKET_NAME attach;
+    fi
+    # else do nothing if alredy attached
+    fi
+    alias ta='tmux -L $TMUX_SOCKET_NAME attach'
+    alias tad='tmux -L $TMUX_SOCKET_NAME attach -d'
+   }
+
